@@ -12,10 +12,9 @@ const OUT_FILE = process.env.OUT_FILE
   ? path.resolve(process.env.OUT_FILE)
   : path.join(OUT_DIR, "gallery.json");
 
-// Tunables
-const MAX_SCROLLS = Number(process.env.MAX_SCROLLS || 60);      // try 60 “screens” down
-const WAIT_BETWEEN = Number(process.env.WAIT_BETWEEN || 600);   // ms between scrolls
-const FIRST_IDLE = Number(process.env.FIRST_IDLE || 6000);      // ms before first scroll
+const MAX_SCROLLS = 80;     // go deep
+const WAIT_BETWEEN = 700;   // ms between scrolls
+const FIRST_IDLE = 6000;    // ms initial wait
 
 function uniq(items) {
   const seen = new Set();
@@ -30,71 +29,50 @@ function uniq(items) {
 (async () => {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({
+    viewport: { width: 3840, height: 2160 },
     userAgent:
-      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome Safari",
-    viewport: { width: 3840, height: 2160 } // simulate 4K viewport
+      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome Safari"
   });
 
   console.log(`Navigating to ${COSMOS_URL}`);
   await page.goto(COSMOS_URL, { waitUntil: "domcontentloaded", timeout: 120000 });
   await page.waitForTimeout(FIRST_IDLE);
 
-  // Scroll deep to load lazy media
-  console.log("Scrolling page to trigger lazy loads…");
-  await page.evaluate(
-    async ({ MAX_SCROLLS, WAIT_BETWEEN }) => {
-      const sleep = (ms) => new Promise(r => setTimeout(r, ms));
-      for (let i = 0; i < MAX_SCROLLS; i++) {
-        window.scrollBy(0, window.innerHeight * 0.9);
-        await sleep(WAIT_BETWEEN);
-      }
-      window.scrollTo(0, 0);
-      await sleep(1000);
-    },
-    { MAX_SCROLLS, WAIT_BETWEEN }
-  );
+  const allItems = new Map();
 
-  await page.waitForLoadState("networkidle").catch(() => {});
-  await page.waitForTimeout(3000); // extra buffer for image decoding
-
-  const items = await page.evaluate(() => {
-    const out = [];
-    document.querySelectorAll("img").forEach(img => {
-      const src = img.currentSrc || img.src;
-      if (src && /\.(jpe?g|png|webp|gif|avif)(\?|$)/i.test(src)) {
-        out.push({
-          type: "image",
-          src,
-          w: img.naturalWidth || null,
-          h: img.naturalHeight || null
-        });
-      }
+  const collect = async () => {
+    const batch = await page.evaluate(() => {
+      const out = [];
+      document.querySelectorAll("img").forEach(img => {
+        const src = img.currentSrc || img.src;
+        if (src && /\.(jpe?g|png|webp|gif|avif)(\?|$)/i.test(src))
+          out.push({ type: "image", src });
+      });
+      document.querySelectorAll("video").forEach(v => {
+        const s = v.currentSrc || v.src || (v.querySelector("source")?.src);
+        if (s && /\.(mp4|webm|mov)(\?|$)/i.test(s))
+          out.push({ type: "video", src: s });
+      });
+      return out;
     });
-    document.querySelectorAll("video").forEach(v => {
-      const s = v.currentSrc || v.src || (v.querySelector("source")?.src);
-      if (s && /\.(mp4|webm|m4v|mov)(\?|$)/i.test(s)) {
-        out.push({
-          type: "video",
-          src: s,
-          poster: v.poster || null,
-          w: v.videoWidth || null,
-          h: v.videoHeight || null
-        });
-      }
-    });
-    const normalise = (m) => {
-      try {
-        const u = new URL(m.src, location.href);
-        return { ...m, src: u.origin + u.pathname };
-      } catch { return m; }
-    };
-    return out.map(normalise);
-  });
+    batch.forEach(it => allItems.set(it.src, it));
+  };
 
+  console.log("Scrolling and collecting...");
+  for (let i = 0; i < MAX_SCROLLS; i++) {
+    await collect();
+    await page.evaluate(() => window.scrollBy(0, window.innerHeight * 0.8));
+    await page.waitForTimeout(WAIT_BETWEEN);
+  }
+
+  await collect();
   await browser.close();
 
-  const payload = { ok: true, source: COSMOS_URL, count: items.length, items: uniq(items) };
+  const items = uniq([...allItems.values()]);
   fs.mkdirSync(OUT_DIR, { recursive: true });
-  fs.writeFileSync(OUT_FILE, JSON.stringify(payload, null, 2));
-  console.log(`✅ Wrote ${OUT_FILE} with ${payload.count} items`);
+  fs.writeFileSync(
+    OUT_FILE,
+    JSON.stringify({ ok: true, source: COSMOS_URL, count: items.length, items }, null, 2)
+  );
+  console.log(`✅ Saved ${items.length} items to ${OUT_FILE}`);
 })();
