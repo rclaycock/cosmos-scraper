@@ -1,4 +1,4 @@
-name: Cosmos scrape -> gallery.json
+name: Cosmos Gallery -> gallery.json
 
 on:
   workflow_dispatch:
