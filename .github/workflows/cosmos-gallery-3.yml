@@ -1,0 +1,72 @@
+name: Cosmos Gallery Canvas -> gallery.json
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 * * * *"   # hourly
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    env:
+      URLS: >
+        https://www.cosmos.so/rlphoto/swim/canvas,
+        https://www.cosmos.so/rlphoto/studio-tests,
+        https://www.cosmos.so/rlphoto/studio-test-feminine,
+        https://www.cosmos.so/rlphoto/swim-resort,
+        https://www.cosmos.so/rlphoto/location-tests
+      # optional tuning
+      MAX_SCROLLS: 120
+      WAIT_BETWEEN: 2000
+      FIRST_IDLE: 9000
+
+    steps:
+      - name: Checkout repository (force latest main)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          clean: true
+
+      - name: Verify commit and scraper contents
+        run: |
+          echo "GITHUB_SHA: $GITHUB_SHA"
+          git log -1 --oneline
+          echo "SHA256 of scraper/scrape.mjs:"
+          (sha256sum scraper/scrape.mjs || shasum -a 256 scraper/scrape.mjs)
+          echo "---- first 25 lines ----"
+          nl -ba scraper/scrape.mjs | sed -n '1,25p'
+
+      - name: Set up Node.js (no cache requirement)
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: |
+          npm install
+          npx playwright install --with-deps chromium
+
+      - name: Scrape all Cosmos pages
+        run: |
+          IFS=',' read -ra arr <<< "${URLS}"
+          mkdir -p public
+          for u in "${arr[@]}"; do
+            u=$(echo "$u" | xargs)
+            slug=$(basename "$u")
+            echo "Scraping $u -> public/${slug}.json"
+            COSMOS_URL="$u" OUT_FILE="public/${slug}.json" \
+            MAX_SCROLLS="${MAX_SCROLLS}" WAIT_BETWEEN="${WAIT_BETWEEN}" FIRST_IDLE="${FIRST_IDLE}" \
+            npm run scrape
+          done
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
+          publish_branch: gh-pages
