@@ -43,6 +43,10 @@ jobs:
           nl -ba scraper/scrape.mjs | sed -n '1,25p'
           
       - name: Scrape all Cosmos pages
+        env:
+          MAX_SCROLLS: 120
+          WAIT_BETWEEN: 2000      # 2 seconds between scrolls
+          FIRST_IDLE: 9000        # wait 9 seconds before scrolling
         run: |
           IFS=',' read -ra arr <<< "${URLS}"
           mkdir -p public
