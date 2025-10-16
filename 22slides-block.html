@@ -1,0 +1,60 @@
+<div id="cosmos-feed-gallery"
+     data-feed="https://rclaycock.github.io/cosmos-feed/gallery.json">
+  <style>
+    #cosmos-feed-gallery{ width:100vw; position:relative; left:50%; margin-left:-50vw; background:#fff; }
+    .cg-wrap{ max-width:1400px; margin:0 auto; padding:12px; }
+    .cg-grid{ column-width: 320px; column-gap: 12px; }
+    .cg-item{ break-inside: avoid; margin:0 0 12px 0; }
+    .cg-item img, .cg-item video{ width:100%; height:auto; display:block; background:#f4f4f4; }
+    .cg-note{ font:14px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; color:#777; padding:8px 0 16px; }
+  </style>
+
+  <div class="cg-wrap">
+    <div id="cg-grid" class="cg-grid"></div>
+    <div id="cg-note" class="cg-note"></div>
+  </div>
+
+  <script>
+    (async function(){
+      const root = document.getElementById('cosmos-feed-gallery');
+      const grid = document.getElementById('cg-grid');
+      const note = document.getElementById('cg-note');
+      const feed = root.getAttribute('data-feed');
+
+      function el(tag, attrs={}, children=[]){
+        const e = document.createElement(tag);
+        for (const k in attrs){
+          if (k === 'style' && typeof attrs[k] === 'object') Object.assign(e.style, attrs[k]);
+          else e.setAttribute(k, attrs[k] ?? '');
+        }
+        children.forEach(c => e.appendChild(c));
+        return e;
+      }
+
+      try{
+        const r = await fetch(feed, { cache: 'no-store' });
+        const data = await r.json();
+        if (!data.ok || !data.items?.length){
+          note.textContent = 'No media found.';
+          return;
+        }
+        data.items.forEach(item => {
+          const wrap = el('div', { class:'cg-item' });
+          if (item.type === 'video'){
+            const v = el('video', { playsinline:'', muted:'', loop:'', controls:'' });
+            if (item.poster) v.setAttribute('poster', item.poster);
+            v.src = item.src;
+            wrap.appendChild(v);
+          } else {
+            wrap.appendChild(el('img', { loading:'lazy', decoding:'async', alt:'', src:item.src }));
+          }
+          grid.appendChild(wrap);
+        });
+        note.textContent = `${data.count} items`;
+      } catch (e){
+        console.error(e);
+        note.textContent = 'Could not load gallery.';
+      }
+    })();
+  </script>
+</div>

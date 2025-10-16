@@ -1,0 +1,12 @@
+{
+  "name": "cosmos-scraper",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "scripts": {
+    "scrape": "node scraper/scrape.mjs"
+  },
+  "dependencies": {
+    "playwright": "1.48.2"
+  }
+}
