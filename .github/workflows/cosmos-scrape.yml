@@ -3,7 +3,7 @@ name: Cosmos scrape -> gallery.json
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 * * * *"   # every hour
+    - cron: "0 * * * *"   # hourly
 
 jobs:
   scrape:
@@ -23,14 +23,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Set up Node.js (no cache, no lockfile required)
         uses: actions/setup-node@v4
         with:
           node-version: "20"
 
-      - name: Install dependencies
+      - name: Install dependencies (force fresh)
         run: |
-          npm install
+          rm -rf node_modules
+          npm install --no-audit --no-fund
           npx playwright install --with-deps chromium
 
       - name: Scrape all Cosmos pages
