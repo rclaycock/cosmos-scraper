@@ -13,9 +13,9 @@ const OUT_FILE = process.env.OUT_FILE
   : path.join(OUT_DIR, "gallery.json");
 
 // Tunables
-const MAX_SCROLLS = Number(process.env.MAX_SCROLLS || 20);      // was 4
+const MAX_SCROLLS = Number(process.env.MAX_SCROLLS || 60);      // try 60 “screens” down
 const WAIT_BETWEEN = Number(process.env.WAIT_BETWEEN || 600);   // ms between scrolls
-const FIRST_IDLE = Number(process.env.FIRST_IDLE || 5000);      // initial hydrate wait
+const FIRST_IDLE = Number(process.env.FIRST_IDLE || 6000);      // ms before first scroll
 
 function uniq(items) {
   const seen = new Set();
@@ -28,40 +28,37 @@ function uniq(items) {
 }
 
 (async () => {
-  const browser = await chromium.launch();
+  const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({
     userAgent:
       "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome Safari",
-    viewport: { width: 1400, height: 900 }, // decent desktop viewport so masonry layouts load
+    viewport: { width: 3840, height: 2160 } // simulate 4K viewport
   });
 
+  console.log(`Navigating to ${COSMOS_URL}`);
   await page.goto(COSMOS_URL, { waitUntil: "domcontentloaded", timeout: 120000 });
-
-  // Let Next/React hydrate + first lazy images attach
   await page.waitForTimeout(FIRST_IDLE);
 
-  // Deep scroll to trigger lazy loading
+  // Scroll deep to load lazy media
+  console.log("Scrolling page to trigger lazy loads…");
   await page.evaluate(
     async ({ MAX_SCROLLS, WAIT_BETWEEN }) => {
       const sleep = (ms) => new Promise(r => setTimeout(r, ms));
       for (let i = 0; i < MAX_SCROLLS; i++) {
-        window.scrollBy(0, Math.floor(window.innerHeight * 0.9));
+        window.scrollBy(0, window.innerHeight * 0.9);
         await sleep(WAIT_BETWEEN);
       }
-      // small bounce to ensure on-screen sources are resolved
       window.scrollTo(0, 0);
-      await sleep(400);
+      await sleep(1000);
     },
     { MAX_SCROLLS, WAIT_BETWEEN }
   );
 
-  // One more idle wait for any late network fetches
-  await page.waitForLoadState("networkidle", { timeout: 30000 }).catch(() => {});
+  await page.waitForLoadState("networkidle").catch(() => {});
+  await page.waitForTimeout(3000); // extra buffer for image decoding
 
   const items = await page.evaluate(() => {
     const out = [];
-
-    // Images
     document.querySelectorAll("img").forEach(img => {
       const src = img.currentSrc || img.src;
       if (src && /\.(jpe?g|png|webp|gif|avif)(\?|$)/i.test(src)) {
@@ -73,8 +70,6 @@ function uniq(items) {
         });
       }
     });
-
-    // Videos
     document.querySelectorAll("video").forEach(v => {
       const s = v.currentSrc || v.src || (v.querySelector("source")?.src);
       if (s && /\.(mp4|webm|m4v|mov)(\?|$)/i.test(s)) {
@@ -87,8 +82,6 @@ function uniq(items) {
         });
       }
     });
-
-    // Normalise URL (strip query) to dedupe CDN variants
     const normalise = (m) => {
       try {
         const u = new URL(m.src, location.href);
@@ -103,5 +96,5 @@ function uniq(items) {
   const payload = { ok: true, source: COSMOS_URL, count: items.length, items: uniq(items) };
   fs.mkdirSync(OUT_DIR, { recursive: true });
   fs.writeFileSync(OUT_FILE, JSON.stringify(payload, null, 2));
-  console.log(`Wrote ${OUT_FILE} with ${payload.count} items`);
+  console.log(`✅ Wrote ${OUT_FILE} with ${payload.count} items`);
 })();
