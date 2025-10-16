@@ -1,13 +1,20 @@
 {
   "ok": true,
   "source": "https://www.cosmos.so/rlphoto/studio-tests",
-  "count": 3,
+  "count": 4,
   "items": [
     {
       "type": "image",
       "src": "https://cdn.cosmos.so/default-avatars/01.png",
-      "w": 1280,
-      "h": 1280
+      "w": 1400,
+      "h": 1400
+    },
+    {
+      "type": "video",
+      "src": "https://stream.mux.com/TV7OLmbCRdoW9kfq101NpUMeAotlpOuUX4cu23932FT8/low.mp4",
+      "poster": "https://cdn.cosmos.so/3fffe3a9-3501-42a1-b92e-62ee4fefae1f?format=webp&w=400",
+      "w": null,
+      "h": null
     },
     {
       "type": "video",
