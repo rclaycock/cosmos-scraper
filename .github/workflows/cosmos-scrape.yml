@@ -23,8 +23,22 @@ jobs:
 
       - name: Scrape Cosmos
         env:
-          COSMOS_URL: ${{ vars.COSMOS_URL }}
-        run: npm run scrape
+  URLS: >
+    https://www.cosmos.so/rlphoto/swim,
+    https://www.cosmos.so/rlphoto/studio-tests,
+    https://www.cosmos.so/rlphoto/studio-test-feminine,
+    https://www.cosmos.so/rlphoto/swim-resort,
+    https://www.cosmos.so/rlphoto/location-tests
+    - name: Scrape all Cosmos pages
+  run: |
+    IFS=',' read -ra arr <<< "${URLS}"
+    mkdir -p public
+    for u in "${arr[@]}"; do
+      u=$(echo "$u" | xargs)
+      slug=$(basename "$u")
+      echo "Scraping $u -> public/${slug}.json"
+      COSMOS_URL="$u" OUT_FILE="public/${slug}.json" npm run scrape
+    done
 
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v3
