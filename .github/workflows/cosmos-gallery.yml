@@ -34,6 +34,14 @@ jobs:
           npm install
           npx playwright install --with-deps chromium
 
+      - name: Verify scraper version
+        run: |
+          echo "Commit: $GITHUB_SHA"
+          echo "SHA256 of scraper/scrape.mjs:"
+          (sha256sum scraper/scrape.mjs || shasum -a 256 scraper/scrape.mjs)
+          echo "--- First 25 lines of scraper/scrape.mjs ---"
+          nl -ba scraper/scrape.mjs | sed -n '1,25p'
+          
       - name: Scrape all Cosmos pages
         run: |
           IFS=',' read -ra arr <<< "${URLS}"
