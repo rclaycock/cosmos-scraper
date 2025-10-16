@@ -1,0 +1,27 @@
+{
+  "ok": true,
+  "source": "https://www.cosmos.so/rlphoto/studio-tests",
+  "count": 3,
+  "items": [
+    {
+      "type": "image",
+      "src": "https://cdn.cosmos.so/default-avatars/01.png",
+      "w": 1280,
+      "h": 1280
+    },
+    {
+      "type": "video",
+      "src": "https://stream.mux.com/e00qOJaI93dEL739Qy4wZ01oA3JMHaxkmCj701NeDdwW4Y/low.mp4",
+      "poster": "https://cdn.cosmos.so/59a340b6-f20b-4882-80d1-758ba07ef2f7?format=webp&w=400",
+      "w": null,
+      "h": null
+    },
+    {
+      "type": "video",
+      "src": "https://stream.mux.com/uz1BO8o4mzt3ZQMj3Mrfdv02tSwbhvqYU164RZn00D4pA/low.mp4",
+      "poster": "https://cdn.cosmos.so/c3f43e78-1f45-4f0e-863e-4d59d9e3b432?format=webp&w=400",
+      "w": null,
+      "h": null
+    }
+  ]
+}

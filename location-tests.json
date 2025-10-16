@@ -1,0 +1,13 @@
+{
+  "ok": true,
+  "source": "https://www.cosmos.so/rlphoto/location-tests",
+  "count": 1,
+  "items": [
+    {
+      "type": "image",
+      "src": "https://cdn.cosmos.so/default-avatars/01.png",
+      "w": 1280,
+      "h": 1280
+    }
+  ]
+}
