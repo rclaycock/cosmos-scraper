@@ -1,14 +1,25 @@
 name: Cosmos scrape -> gallery.json
+
 on:
   workflow_dispatch:
   schedule:
-    - cron: "*/60 * * * *"   # every hour
+    - cron: "0 * * * *"   # hourly
 
 jobs:
   scrape:
     runs-on: ubuntu-latest
     permissions:
-      contents: write   # needed for gh-pages push
+      contents: write
+
+    # Put your gallery URLs here (one line, comma-separated)
+    env:
+      URLS: >
+        https://www.cosmos.so/rlphoto/swim,
+        https://www.cosmos.so/rlphoto/studio-tests,
+        https://www.cosmos.so/rlphoto/studio-test-feminine,
+        https://www.cosmos.so/rlphoto/swim-resort,
+        https://www.cosmos.so/rlphoto/location-tests
+
     steps:
       - uses: actions/checkout@v4
 
@@ -21,24 +32,16 @@ jobs:
           npm ci
           npx playwright install --with-deps chromium
 
-      - name: Scrape Cosmos
-        env:
-  URLS: >
-    https://www.cosmos.so/rlphoto/swim,
-    https://www.cosmos.so/rlphoto/studio-tests,
-    https://www.cosmos.so/rlphoto/studio-test-feminine,
-    https://www.cosmos.so/rlphoto/swim-resort,
-    https://www.cosmos.so/rlphoto/location-tests
-    - name: Scrape all Cosmos pages
-  run: |
-    IFS=',' read -ra arr <<< "${URLS}"
-    mkdir -p public
-    for u in "${arr[@]}"; do
-      u=$(echo "$u" | xargs)
-      slug=$(basename "$u")
-      echo "Scraping $u -> public/${slug}.json"
-      COSMOS_URL="$u" OUT_FILE="public/${slug}.json" npm run scrape
-    done
+      - name: Scrape all Cosmos pages
+        run: |
+          IFS=',' read -ra arr <<< "${URLS}"
+          mkdir -p public
+          for u in "${arr[@]}"; do
+            u=$(echo "$u" | xargs)                # trim whitespace
+            slug=$(basename "$u")
+            echo "Scraping $u -> public/${slug}.json"
+            COSMOS_URL="$u" OUT_FILE="public/${slug}.json" npm run scrape
+          done
 
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v3
