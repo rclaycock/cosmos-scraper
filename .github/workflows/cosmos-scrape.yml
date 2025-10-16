@@ -3,7 +3,7 @@ name: Cosmos scrape -> gallery.json
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 * * * *"   # hourly
+    - cron: "0 * * * *"   # every hour
 
 jobs:
   scrape:
@@ -20,13 +20,15 @@ jobs:
         https://www.cosmos.so/rlphoto/location-tests
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: "20"
 
-      - name: Install deps
+      - name: Install dependencies
         run: |
           npm install
           npx playwright install --with-deps chromium
@@ -42,7 +44,7 @@ jobs:
             COSMOS_URL="$u" OUT_FILE="public/${slug}.json" npm run scrape
           done
 
-      - name: Deploy to gh-pages
+      - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
