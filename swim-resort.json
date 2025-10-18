@@ -1,15 +1,11 @@
 {
   "ok": true,
   "source": "https://www.cosmos.so/rlphoto/swim-resort",
-  "count": 2,
+  "count": 1,
   "items": [
     {
       "type": "image",
       "src": "https://cdn.cosmos.so/default-avatars/01.png?format=webp&w=300"
-    },
-    {
-      "type": "video",
-      "src": "https://cdn.cosmos.so/096d5bf5-bd42-44f5-803e-60064d72d6d0.mp4"
     }
   ]
 }
