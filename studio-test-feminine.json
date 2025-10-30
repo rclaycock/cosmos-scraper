@@ -1,15 +1,6 @@
 {
   "ok": true,
   "source": "https://www.cosmos.so/rlphoto/studio-test-feminine",
-  "count": 2,
-  "items": [
-    {
-      "type": "image",
-      "src": "https://cdn.cosmos.so/default-avatars/01.png?format=webp&w=300"
-    },
-    {
-      "type": "video",
-      "src": "https://stream.mux.com/sqpD02bk01eapsL00qInRTd9fpXx5RWEuZqampdSgCUPrU/low.mp4"
-    }
-  ]
+  "count": 0,
+  "items": []
 }
