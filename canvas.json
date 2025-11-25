@@ -1,6 +1,6 @@
 {
   "ok": true,
-  "source": "https://www.cosmos.so/rlphoto/studio-tests",
+  "source": "https://www.cosmos.so/rlphoto/swim/canvas",
   "count": 2,
   "items": [
     {
@@ -8,8 +8,8 @@
       "src": "https://cdn.cosmos.so/default-avatars/01.png?format=webp&w=300"
     },
     {
-      "type": "video",
-      "src": "https://stream.mux.com/uz1BO8o4mzt3ZQMj3Mrfdv02tSwbhvqYU164RZn00D4pA/low.mp4"
+      "type": "image",
+      "src": "https://www.cosmos.so/cosmos-logo.png"
     }
   ]
 }
