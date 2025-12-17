@@ -9,15 +9,15 @@
     },
     {
       "type": "video",
+      "src": "https://stream.mux.com/TV7OLmbCRdoW9kfq101NpUMeAotlpOuUX4cu23932FT8/low.mp4"
+    },
+    {
+      "type": "video",
       "src": "https://stream.mux.com/e00qOJaI93dEL739Qy4wZ01oA3JMHaxkmCj701NeDdwW4Y/low.mp4"
     },
     {
       "type": "video",
       "src": "https://stream.mux.com/uz1BO8o4mzt3ZQMj3Mrfdv02tSwbhvqYU164RZn00D4pA/low.mp4"
-    },
-    {
-      "type": "video",
-      "src": "https://stream.mux.com/TV7OLmbCRdoW9kfq101NpUMeAotlpOuUX4cu23932FT8/low.mp4"
     }
   ]
 }
