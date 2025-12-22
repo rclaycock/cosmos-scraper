@@ -1,7 +1,7 @@
 {
   "ok": true,
   "source": "https://www.cosmos.so/rlphoto/swim",
-  "count": 5,
+  "count": 6,
   "items": [
     {
       "type": "image",
@@ -14,6 +14,10 @@
     {
       "type": "video",
       "src": "https://stream.mux.com/dznKWa96PZYqM01nkwSbtgLNya8iTJfMAiLLmnyjPTV00/low.mp4"
+    },
+    {
+      "type": "video",
+      "src": "https://stream.mux.com/bMl5iwsKRCxIcm4vbKDoUOy1dvpEr02o0000rAVcP6riWA/low.mp4"
     },
     {
       "type": "video",
