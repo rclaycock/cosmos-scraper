@@ -1,15 +1,11 @@
 {
   "ok": true,
   "source": "https://www.cosmos.so/rlphoto/swim",
-  "count": 6,
+  "count": 5,
   "items": [
     {
       "type": "image",
       "src": "https://cdn.cosmos.so/default-avatars/01.png?format=webp&w=300"
-    },
-    {
-      "type": "video",
-      "src": "https://stream.mux.com/7GzANFOfEN2Ax2soWR2NkPt4uRIwVo51Ilw1E45gUfw/low.mp4"
     },
     {
       "type": "video",
