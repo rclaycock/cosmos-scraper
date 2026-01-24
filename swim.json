@@ -9,6 +9,10 @@
     },
     {
       "type": "video",
+      "src": "https://stream.mux.com/7GzANFOfEN2Ax2soWR2NkPt4uRIwVo51Ilw1E45gUfw/low.mp4"
+    },
+    {
+      "type": "video",
       "src": "https://stream.mux.com/dznKWa96PZYqM01nkwSbtgLNya8iTJfMAiLLmnyjPTV00/low.mp4"
     },
     {
@@ -22,10 +26,6 @@
     {
       "type": "video",
       "src": "https://stream.mux.com/01bY0200XnXkfFyoktZFhTU00kPAFlzjWriur5DzHgVI5014/low.mp4"
-    },
-    {
-      "type": "video",
-      "src": "https://stream.mux.com/7GzANFOfEN2Ax2soWR2NkPt4uRIwVo51Ilw1E45gUfw/low.mp4"
     }
   ]
 }
